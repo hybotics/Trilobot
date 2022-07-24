@@ -15,7 +15,7 @@ from trilobot import Trilobot, BUTTON_A, LIGHT_FRONT_LEFT, LIGHT_MIDDLE_LEFT, LI
   License:    MIT
 """
 
-DEBUG = True
+DEBUG = False
 
 # Default values for the distance_reading() function
 COLLISION_THRESHOLD_CM  = 18
