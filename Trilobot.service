@@ -1,0 +1,14 @@
+[Unit]
+Description=Trilobot
+After=multi-user.target
+StartLimitIntervalSec=0
+  
+[Service]
+Type=simple
+ExecStart=/root/Trilobot.py
+User=root
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
