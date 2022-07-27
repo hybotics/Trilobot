@@ -1,2 +1,1 @@
-# Trilobot
-The code for my Pimoroni Trilobot.
+This is the code for MY Pimoroni Trilobot.
