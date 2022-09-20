@@ -7,6 +7,7 @@
   Version:    0.7.2
   Date:       20-Sep-2022
   Purpose:    Removed the translate() and ultrasonic ranger functions because they are not needed
+              Added a DRIVE_ON bool to allow turning the drive system on or off
 
   Version:    0.7.1
   Date:       17-Sep-2022
@@ -47,7 +48,7 @@ MAX_NUM_SAMPLES         = 3
 NORMAL_LEFT_SPEED       = 0.50
 NORMAL_LEFT_OFFSET      = 0.0
 NORMAL_RIGHT_SPEED      = 0.50
-NORMAL_RIGHT_OFFSET     = -0.045
+NORMAL_RIGHT_OFFSET     = -0.50
 
 # Turning parameters
 TURN_SPEED              = 0.45
@@ -294,7 +295,9 @@ def turn_left():
 
   last_turn = LEFT
   blink_underlights(trilobot, LEFT_LIGHTS, BLUE)
-  trilobot.set_motor_speeds(-TURN_SPEED, TURN_SPEED)
+
+  if DRIVE_ON:
+    trilobot.set_motor_speeds(-TURN_SPEED, TURN_SPEED)
 
 def turn_right():
   if DEBUG:
@@ -302,15 +305,19 @@ def turn_right():
 
   last_turn = RIGHT
   blink_underlights(trilobot, RIGHT_LIGHTS, BLUE)
-  trilobot.set_motor_speeds(TURN_SPEED, -TURN_SPEED)
+
+  if DRIVE_ON:
+    trilobot.set_motor_speeds(TURN_SPEED, -TURN_SPEED)
 
 def backup(loops=DEFAULT_BACKUP_LOOPS, wait_sec=DEFAULT_BACKUP_TIME_SEC):
-  print("Backing up")
+  if DEBUG:
+    print("(main) Backing up")
 
-  for l in range(loops):
-    blink_underlights(trilobot, REAR_LIGHTS, YELLOW)
-    trilobot.set_motor_speeds(-TURN_SPEED, -TURN_SPEED)
-    sleep(wait_sec)
+  if DRIVE_ON:
+    for l in range(loops):
+      blink_underlights(trilobot, REAR_LIGHTS, YELLOW)
+      trilobot.set_motor_speeds(-TURN_SPEED, -TURN_SPEED)
+      sleep(wait_sec)
 
 '''
   *****************************************************************************
@@ -346,6 +353,9 @@ print("Done!")
 
 vl53.start_ranging()
 
+# Turn drive on or off
+DRIVE_ON = False
+
 '''
   *****************************************************************************
   Start of Main Line
@@ -364,9 +374,10 @@ try:
 
   while True:
     if DEBUG:
-      print(F"(main) Left distance = {left_distance_mm} mm, Center distance = {center_distance_mm}, Right distance = {right_distance_mm}")
+      print(F"(main) Moving forward: Left distance = {left_distance_mm} mm, Center distance = {center_distance_mm}, Right distance = {right_distance_mm}")
 
-    trilobot.set_motor_speeds(NORMAL_LEFT_SPEED + NORMAL_LEFT_OFFSET, NORMAL_RIGHT_SPEED + NORMAL_RIGHT_OFFSET)
+    if DRIVE_ON:
+      trilobot.set_motor_speeds(NORMAL_LEFT_SPEED + NORMAL_LEFT_OFFSET, NORMAL_RIGHT_SPEED + NORMAL_RIGHT_OFFSET)
 
     # Move forward until we have a collision nevent
     while not collision:
@@ -389,7 +400,7 @@ try:
       backup()
 
       if DEBUG:
-        print("(main) Beginning turn distance = {0:5.2f}, Collision = {1}".format(forward_distance_mm, collision))
+        print("(main) Beginning turn distance = {0:5.2f}, Collision = {1}".format(center_distance_mm, collision))
 
       percent = round(random() * 100.0, 2)
 
@@ -408,7 +419,7 @@ try:
         turn_right()
       elif percent >= 50.0:
         turn_left()
-      else:
+      else;
         backup()
 
       sleep(TURN_TIME_SEC)
